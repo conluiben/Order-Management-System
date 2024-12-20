@@ -12,16 +12,22 @@
     </head>
     <body class="">
         <div class="min-h-screen bg-gray-100">
-            <h1 class='font-[3rem]'>Hello World!</h1>
+            @if(session('message'))
+                <div class="alert alert-success">
+                    {{ session('message') }}
+                </div>
+            @endif
+            <h1 class='text-[3rem] font-bold text-neutral-900 text-center'>List of Orders</h1>
             {{-- <p>{{ var_dump($allOrders) }}</p> --}}
             {{-- <p>{{ $allOrders }}</p> --}}
             {{-- <h1>Accessing one element</h1>
             <p>{{ $allOrders[0] }}</p> --}}
-            <div class='flex flex-auto flex-wrap gap-2'>
+            <a href={{route('order.create')}} class='bg-blue-400 p-3 my-0 mx-auto mb-4 inline-block'>Create Order</a>
+            <div class='flex flex-auto flex-wrap gap-2 justify-center'>
                 @foreach ($allOrders as $order)
                     <div class='bg-red-300 p-2 w-1/4 min-w-56 max-w-md flex flex-col justify-between'>
                         <div class='flex flex-row justify-between items-center content-center'>
-                            <h2 class="h2 font-semibold text-2xl/tight"> {{$order->customer_name}} </h2>
+                            <h2 class="h2 font-semibold text-2xl/tight overflow-hidden overflow-ellipsis  whitespace-nowrap"> {{$order->customer_name}} </h2>
                             <div class='bg-orange-400 flex self-stretch items-center rounded-lg'>
                                 <p>Confirmed</p>
                             </div>
@@ -35,8 +41,8 @@
                             <p class='cost'>PHP {{number_format((float) $order->amount_total, 2, '.', '')}}</p>
                         </div>
                         <div class='button_group flex justify-center items-center gap-4'>
-                            <button class='p-2 bg-green-300'>Update</button>
-                            <button class='p-2 bg-red-700'>Delete</button>
+                            <a href={{route('order.edit',$order)}} class='p-2 bg-green-300'>Update</a>
+                            <a href={{route('order.destroy',$order)}} class='p-2 bg-red-700'>Delete</a>
                         </div>
                     </div>
                 @endforeach

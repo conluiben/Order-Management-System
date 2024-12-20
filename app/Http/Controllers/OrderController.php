@@ -13,7 +13,8 @@ class OrderController extends Controller
     public function index()
     {
         // $allOrders = Order::all();
-        $allOrders = Order::take(10)->get();
+        // $allOrders = Order::take(10)->get();
+        $allOrders = Order::query()->orderBy('created_at','desc')->limit(10)->get();
         return view('dashboard',['allOrders'=>$allOrders]);
     }
 
@@ -22,7 +23,7 @@ class OrderController extends Controller
      */
     public function create()
     {
-        return 'create';
+        return view('create');
     }
 
     /**
@@ -30,7 +31,27 @@ class OrderController extends Controller
      */
     public function store(Request $request)
     {
-        return 'store';
+        // return 'store';
+        $validatedData = $request->validate([
+            'customer-name'      => ['required', 'string'], // Input name `customer`
+            'amt-total'  => ['required', 'decimal:0,2'], // Input name `total_amount`
+            'deadline'      => ['required', 'date', 'after_or_equal:today'], // Input name `due_date`
+            'order-desc'      => ['required'], // Input name `order-desc`
+        ]);
+
+        $data = [
+            'customer_name' => $validatedData['customer-name'],
+            'order_description' => $validatedData['order-desc'],
+            'amount_total' => $validatedData['amt-total'],
+            'deadline' => $validatedData['deadline']
+        ];
+        // ? for fields with NO rules, you can write like this: 
+        // 'order_description' => $request->input('order-desc', ''), // defaults to '' if no input found!
+
+        $data['amount_settled'] = 0.00;
+        $note = Order::create($data);
+
+        return to_route('order.index', $note)->with('message','Order successfully created!');
     }
 
     /**
@@ -46,7 +67,7 @@ class OrderController extends Controller
      */
     public function edit(Order $order)
     {
-        return 'edit';
+        return view('edit',['order' => $order]);
     }
 
     /**
@@ -54,7 +75,16 @@ class OrderController extends Controller
      */
     public function update(Request $request, Order $order)
     {
-        //
+        $rawData = $request->all();
+        $data = [
+            'customer_name' => $rawData['customer-name'],
+            'order_description' => $rawData['order-desc'],
+            'amount_total' => $rawData['amt-total'],
+            'amount_settled' => $rawData['amt-settled'],
+            'deadline' => $rawData['deadline']
+        ];
+        $order->update($data);
+        return to_route('order.index', $order)->with('message','Order successfully updated!');
     }
 
     /**
